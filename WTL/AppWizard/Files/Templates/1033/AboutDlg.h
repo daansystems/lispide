@@ -4,7 +4,7 @@
 
 #pragma once
 
-class CAboutDlg : public CDialogImpl<CAboutDlg>
+class CAboutDlg : public [!output ATL_NS]CDialogImpl<CAboutDlg>
 {
 public:
 	enum { IDD = IDD_ABOUTBOX };

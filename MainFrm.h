@@ -398,7 +398,9 @@ public:
 				return 0;
 			}
 			m_pipeview.m_LispPath = fileDlg.m_szFileName;
-			g_Settings.WriteUserProfileString("Settings", "Lisp", m_pipeview.m_LispPath);
+			if (!g_Settings.WriteUserProfileString("Settings", "Lisp", m_pipeview.m_LispPath)) {
+				MessageBox("Cannot save setting.", "LispIDE", MB_OK | MB_ICONWARNING);
+			}
 			return 1;
 		}
 		return 0;

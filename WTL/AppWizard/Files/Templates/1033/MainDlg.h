@@ -5,8 +5,8 @@
 #pragma once
 
 [!if WTL_APPTYPE_DLG && !WTL_APPTYPE_DLG_MODAL]
-class [!output WTL_MAINDLG_CLASS] : public [!output WTL_MAINDLG_BASE_CLASS]<[!output WTL_MAINDLG_CLASS]>, public CUpdateUI<[!output WTL_MAINDLG_CLASS]>,
-		public CMessageFilter, public CIdleHandler
+class [!output WTL_MAINDLG_CLASS] : public [!output WTL_MAINDLG_BASE_CLASS]<[!output WTL_MAINDLG_CLASS]>, public [!output WTL_NS]CUpdateUI<[!output WTL_MAINDLG_CLASS]>,
+		public [!output WTL_NS]CMessageFilter, public [!output WTL_NS]CIdleHandler
 {
 public:
 	enum { IDD = IDD_MAINDLG };
@@ -34,7 +34,7 @@ public:
 		}
 
 [!endif]
-		return CWindow::IsDialogMessage(pMsg);
+		return [!output ATL_NS]CWindow::IsDialogMessage(pMsg);
 	}
 
 [!endif]
@@ -73,13 +73,13 @@ public:
 		CenterWindow();
 
 		// set icons
-		HICON hIcon = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON));
+		HICON hIcon = [!output WTL_NS]AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON));
 		SetIcon(hIcon, TRUE);
-		HICON hIconSmall = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON));
+		HICON hIconSmall = [!output WTL_NS]AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON));
 		SetIcon(hIconSmall, FALSE);
 
 		// register object for message filtering and idle updates
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		[!output WTL_NS]CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);
 		pLoop->AddMessageFilter(this);
 		pLoop->AddIdleHandler(this);
@@ -96,7 +96,7 @@ public:
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		// unregister message filtering and idle updates
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		[!output WTL_NS]CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);
 		pLoop->RemoveMessageFilter(this);
 		pLoop->RemoveIdleHandler(this);
@@ -193,9 +193,9 @@ public:
 		CenterWindow();
 
 		// set icons
-		HICON hIcon = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON));
+		HICON hIcon = [!output WTL_NS]AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON));
 		SetIcon(hIcon, TRUE);
-		HICON hIconSmall = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON));
+		HICON hIconSmall = [!output WTL_NS]AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON));
 		SetIcon(hIconSmall, FALSE);
 
 		return TRUE;
@@ -226,7 +226,7 @@ public:
 [!else]
 	LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		CSimpleDialog<IDD_ABOUTBOX, FALSE> dlg;
+		[!output ATL_NS]CSimpleDialog<IDD_ABOUTBOX, FALSE> dlg;
 		dlg.DoModal();
 		return 0;
 	}

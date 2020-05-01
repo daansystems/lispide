@@ -1,6 +1,7 @@
 
 /**
  * Implementation of the native Cocoa View that serves as container for the scintilla parts.
+ * @file ScintillaView.mm
  *
  * Created by Mike Lischke.
  *
@@ -8,6 +9,8 @@
  * Copyright 2009, 2011 Sun Microsystems, Inc. All rights reserved.
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
+
+#include <cmath>
 
 #include <string_view>
 #include <vector>
@@ -52,6 +55,21 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 		return [NSCursor arrowCursor];
 	}
 }
+
+@implementation SCIScrollView
+- (void) tile {
+	[super tile];
+
+#if defined(MAC_OS_X_VERSION_10_14)
+	if (std::floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_13) {
+		NSRect frame = self.contentView.frame;
+		frame.origin.x = self.verticalRulerView.requiredThickness;
+		frame.size.width -= frame.origin.x;
+		self.contentView.frame = frame;
+	}
+#endif
+}
+@end
 
 // Add marginWidth and owner properties as a private category.
 @interface SCIMarginView()
@@ -398,7 +416,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 	}
 
 	[mOwner message: SCI_SETTARGETRANGE wParam: posRange.location lParam: NSMaxRange(posRange)];
-	std::string text([mOwner message: SCI_TARGETASUTF8] + 1, 0);
+	std::string text([mOwner message: SCI_TARGETASUTF8], 0);
 	[mOwner message: SCI_TARGETASUTF8 wParam: 0 lParam: reinterpret_cast<sptr_t>(&text[0])];
 	text = FixInvalidUTF8(text);
 	NSString *result = @(text.c_str());
@@ -408,12 +426,14 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 	// SCI_GETSTYLEAT reports a signed byte but want an unsigned to index into styles
 	const char styleByte = static_cast<char>([mOwner message: SCI_GETSTYLEAT wParam: posRange.location]);
 	const long style = static_cast<unsigned char>(styleByte);
-	std::string fontName([mOwner message: SCI_STYLEGETFONT wParam: style lParam: 0] + 1, 0);
+	std::string fontName([mOwner message: SCI_STYLEGETFONT wParam: style lParam: 0], 0);
 	[mOwner message: SCI_STYLEGETFONT wParam: style lParam: (sptr_t)&fontName[0]];
 	const CGFloat fontSize = [mOwner message: SCI_STYLEGETSIZEFRACTIONAL wParam: style] / 100.0f;
 	NSString *sFontName = @(fontName.c_str());
 	NSFont *font = [NSFont fontWithName: sFontName size: fontSize];
-	[asResult addAttribute: NSFontAttributeName value: font range: rangeAS];
+	if (font) {
+		[asResult addAttribute: NSFontAttributeName value: font range: rangeAS];
+	}
 
 	return asResult;
 }
@@ -510,7 +530,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 	else if ([aString isKindOfClass: [NSAttributedString class]])
 		newText = (NSString *) [aString string];
 
-	mOwner.backend->InsertText(newText);
+	mOwner.backend->InsertText(newText, EditModel::CharacterSource::directInput);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -603,11 +623,11 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 		NSRange posRangeCurrent = mOwner.backend->PositionsFromCharacters(NSMakeRange(replacementRange.location, 0));
 		// Note: Scintilla internally works almost always with bytes instead chars, so we need to take
 		//       this into account when determining selection ranges and such.
-		ptrdiff_t lengthInserted = mOwner.backend->InsertText(newText);
+		ptrdiff_t lengthInserted = mOwner.backend->InsertText(newText, EditModel::CharacterSource::tentativeInput);
 		posRangeCurrent.length = lengthInserted;
 		mMarkedTextRange = mOwner.backend->CharactersFromPositions(posRangeCurrent);
 		// Mark the just inserted text. Keep the marked range for later reset.
-		[mOwner setGeneralProperty: SCI_SETINDICATORCURRENT value: INDIC_IME];
+		[mOwner setGeneralProperty: SCI_SETINDICATORCURRENT value: INDICATOR_IME];
 		[mOwner setGeneralProperty: SCI_INDICATORFILLRANGE
 				 parameter: posRangeCurrent.location
 				     value: posRangeCurrent.length];
@@ -729,14 +749,14 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 		// Only snap for positions inside the document - allow outside
 		// for overshoot.
 		long lineHeight = mOwner.backend->WndProc(SCI_TEXTHEIGHT, 0, 0);
-		rc.origin.y = roundf(static_cast<XYPOSITION>(rc.origin.y) / lineHeight) * lineHeight;
+		rc.origin.y = std::round(static_cast<XYPOSITION>(rc.origin.y) / lineHeight) * lineHeight;
 	}
 	// Snap to whole points - on retina displays this avoids visual debris
 	// when scrolling horizontally.
 	if ((rc.origin.x > 0) && (NSMaxX(rc) < contentRect.size.width)) {
 		// Only snap for positions inside the document - allow outside
 		// for overshoot.
-		rc.origin.x = roundf(static_cast<XYPOSITION>(rc.origin.x));
+		rc.origin.x = std::round(static_cast<XYPOSITION>(rc.origin.x));
 	}
 	return rc;
 }
@@ -1195,7 +1215,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 
 		path = [bundle pathForResource: @"mac_cursor_flipped" ofType: @"tiff" inDirectory: nil];
 		image = [[NSImage alloc] initWithContentsOfFile: path];
-		reverseArrowCursor = [[NSCursor alloc] initWithImage: image hotSpot: NSMakePoint(12, 2)];
+		reverseArrowCursor = [[NSCursor alloc] initWithImage: image hotSpot: NSMakePoint(15, 2)];
 	}
 }
 
@@ -1218,7 +1238,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 #if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
 	zoomDelta += event.magnification * 10.0;
 
-	if (fabs(zoomDelta)>=1.0) {
+	if (std::abs(zoomDelta)>=1.0) {
 		long zoomFactor = static_cast<long>([self getGeneralProperty: SCI_GETZOOM] + zoomDelta);
 		[self setGeneralProperty: SCI_SETZOOM parameter: zoomFactor value: 0];
 		zoomDelta = 0.0;
@@ -1357,11 +1377,11 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
  * input composition, depending on language, keyboard etc.
  */
 - (void) updateIndicatorIME {
-	[self setColorProperty: SCI_INDICSETFORE parameter: INDIC_IME fromHTML: @"#FF0000"];
+	[self setColorProperty: SCI_INDICSETFORE parameter: INDICATOR_IME fromHTML: @"#FF0000"];
 	const bool drawInBackground = [self message: SCI_GETPHASESDRAW] != 0;
-	[self setGeneralProperty: SCI_INDICSETUNDER parameter: INDIC_IME value: drawInBackground];
-	[self setGeneralProperty: SCI_INDICSETSTYLE parameter: INDIC_IME value: INDIC_PLAIN];
-	[self setGeneralProperty: SCI_INDICSETALPHA parameter: INDIC_IME value: 100];
+	[self setGeneralProperty: SCI_INDICSETUNDER parameter: INDICATOR_IME value: drawInBackground];
+	[self setGeneralProperty: SCI_INDICSETSTYLE parameter: INDICATOR_IME value: INDIC_PLAIN];
+	[self setGeneralProperty: SCI_INDICSETALPHA parameter: INDICATOR_IME value: 100];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1379,7 +1399,15 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 		// Pick an arbitrary size, just to make NSScroller selecting the proper scroller direction
 		// (horizontal or vertical).
 		NSRect scrollerRect = NSMakeRect(0, 0, 100, 10);
-		scrollView = [[NSScrollView alloc] initWithFrame: scrollerRect];
+		scrollView = (NSScrollView *)[[SCIScrollView alloc] initWithFrame: scrollerRect];
+#if defined(MAC_OS_X_VERSION_10_14)
+		// Let SCIScrollView account for other subviews such as vertical ruler by turning off
+		// automaticallyAdjustsContentInsets.
+		if (std::floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_13) {
+			scrollView.contentView.automaticallyAdjustsContentInsets = NO;
+			scrollView.contentView.contentInsets = NSEdgeInsetsMake(0., 0., 0., 0.);
+		}
+#endif
 		scrollView.documentView = mContent;
 		[scrollView setHasVerticalScroller: YES];
 		[scrollView setHasHorizontalScroller: YES];
@@ -1938,9 +1966,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
 
 - (void) insertText: (id) aString {
 	if ([aString isKindOfClass: [NSString class]])
-		mBackend->InsertText(aString);
+		mBackend->InsertText(aString, EditModel::CharacterSource::directInput);
 	else if ([aString isKindOfClass: [NSAttributedString class]])
-		mBackend->InsertText([aString string]);
+		mBackend->InsertText([aString string], EditModel::CharacterSource::directInput);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -51,11 +51,11 @@ BOOL [!output WTL_FRAME_CLASS]::OnIdle()
 LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 [!if WTL_RIBBON_DUAL_UI]
-	bool bRibbonUI = RunTimeHelper::IsRibbonUIAvailable();
+	bool bRibbonUI = [!output WTL_NS]RunTimeHelper::IsRibbonUIAvailable();
 	if (bRibbonUI)
 		UIAddMenu(GetMenu(), true);
 	else
-		CMenuHandle(GetMenu()).DeleteMenu(ID_VIEW_RIBBON, MF_BYCOMMAND);
+		[!output WTL_NS]CMenuHandle(GetMenu()).DeleteMenu(ID_VIEW_RIBBON, MF_BYCOMMAND);
 
 [!else]
 [!if WTL_RIBBON_SINGLE_UI]
@@ -120,7 +120,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!endif]
 [!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_RICHEDIT]
-	m_font = AtlCreateControlFont();
+	m_font = [!output WTL_NS]AtlCreateControlFont();
 	m_view.SetFont(m_font);
 [!endif]
 [!if WTL_VIEWTYPE_SCROLL]
@@ -155,7 +155,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_view.Create(m_splitter, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!endif]
 [!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_RICHEDIT]
-	m_font = AtlCreateControlFont();
+	m_font = [!output WTL_NS]AtlCreateControlFont();
 	m_view.SetFont(m_font);
 [!endif]
 [!if WTL_VIEWTYPE_SCROLL]
@@ -186,7 +186,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 [!endif]
 
 	// register object for message filtering and idle updates
-	CMessageLoop* pLoop = _Module.GetMessageLoop();
+	[!output WTL_NS]CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
@@ -203,9 +203,9 @@ LRESULT [!output WTL_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 [!endif]
 [!if WTL_APPTYPE_TABVIEW]
 [!if WTL_USE_CMDBAR]
-	CMenuHandle menuMain = m_CmdBar.GetMenu();
+	[!output WTL_NS]CMenuHandle menuMain = m_CmdBar.GetMenu();
 [!else]
-	CMenuHandle menuMain = GetMenu();
+	[!output WTL_NS]CMenuHandle menuMain = GetMenu();
 [!endif]
 	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
 
@@ -223,7 +223,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, L
 [!endif]
 [!endif]
 	// unregister message filtering and idle updates
-	CMessageLoop* pLoop = _Module.GetMessageLoop();
+	[!output WTL_NS]CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
 	pLoop->RemoveMessageFilter(this);
 	pLoop->RemoveIdleHandler(this);
@@ -253,7 +253,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, L
 [!endif]
 [!endif]
 	// unregister message filtering and idle updates
-	CMessageLoop* pLoop = _Module.GetMessageLoop();
+	[!output WTL_NS]CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
 	pLoop->RemoveMessageFilter(this);
 	pLoop->RemoveIdleHandler(this);
@@ -317,7 +317,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wI
 [!if WTL_USE_REBAR]
 	static BOOL bVisible = TRUE;	// initially visible
 	bVisible = !bVisible;
-	CReBarCtrl rebar = m_hWndToolBar;
+	[!output WTL_NS]CReBarCtrl rebar = m_hWndToolBar;
 [!if WTL_USE_CMDBAR]
 	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);	// toolbar is 2nd added band
 [!else]
@@ -352,7 +352,7 @@ LRESULT [!output WTL_FRAME_CLASS]::OnViewRibbon(WORD /*wNotifyCode*/, WORD /*wID
 	UISetCheck(ID_VIEW_RIBBON, IsRibbonUI());
 [!if !WTL_USE_CMDBAR]
 	if (!IsRibbonUI())
-		SetMenu(AtlLoadMenu(IDR_MAINFRAME));
+		SetMenu([!output WTL_NS]AtlLoadMenu(IDR_MAINFRAME));
 [!endif]
 	return 0;
 }

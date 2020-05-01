@@ -11,9 +11,9 @@
 class [!output WTL_FRAME_CLASS] : 
 	public [!output WTL_FRAME_BASE_CLASS]<[!output WTL_FRAME_CLASS]>, 
 [!if !WTL_USE_RIBBON]
-	public CUpdateUI<[!output WTL_FRAME_CLASS]>,
+	public [!output WTL_NS]CUpdateUI<[!output WTL_FRAME_CLASS]>,
 [!endif]
-	public CMessageFilter, public CIdleHandler
+	public [!output WTL_NS]CMessageFilter, public [!output WTL_NS]CIdleHandler
 {
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
@@ -22,9 +22,9 @@ public:
 	CTabView m_view;
 [!endif]
 [!if WTL_APPTYPE_EXPLORER]
-	CSplitterWindow m_splitter;
-	CPaneContainer m_pane;
-	CTreeViewCtrl m_treeview;
+	[!output WTL_NS]CSplitterWindow m_splitter;
+	[!output WTL_NS]CPaneContainer m_pane;
+	[!output WTL_NS]CTreeViewCtrl m_treeview;
 	[!output WTL_VIEW_CLASS] m_view;
 [!endif]
 [!if WTL_APPTYPE_SDI || WTL_APPTYPE_MTSDI]
@@ -34,14 +34,14 @@ public:
 [!endif]
 [!if WTL_USE_CMDBAR || WTL_USE_RIBBON]
 [!if WTL_APPTYPE_MDI]
-	CMDICommandBarCtrl m_CmdBar;
+	[!output WTL_NS]CMDICommandBarCtrl m_CmdBar;
 [!else]
-	CCommandBarCtrl m_CmdBar;
+	[!output WTL_NS]CCommandBarCtrl m_CmdBar;
 [!endif]
 [!endif]
 [!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_RICHEDIT]
 [!if !WTL_APPTYPE_MDI]
-	CFont m_font;
+	[!output WTL_NS]CFont m_font;
 [!endif]
 [!endif]
 [!if WTL_USE_RIBBON]
@@ -139,7 +139,7 @@ public:
 		COMMAND_ID_HANDLER(ID_PANE_CLOSE, OnTreePaneClose)
 [!endif]
 [!if !WTL_USE_RIBBON]
-		CHAIN_MSG_MAP(CUpdateUI<[!output WTL_FRAME_CLASS]>)
+		CHAIN_MSG_MAP([!output WTL_NS]CUpdateUI<[!output WTL_FRAME_CLASS]>)
 [!endif]
 		CHAIN_MSG_MAP([!output WTL_FRAME_BASE_CLASS]<[!output WTL_FRAME_CLASS]>)
 	END_MSG_MAP()
@@ -155,11 +155,11 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 [!if WTL_RIBBON_DUAL_UI]
-		bool bRibbonUI = RunTimeHelper::IsRibbonUIAvailable();
+		bool bRibbonUI = [!output WTL_NS]RunTimeHelper::IsRibbonUIAvailable();
 		if (bRibbonUI)
 			UIAddMenu(GetMenu(), true);
 		else
-			CMenuHandle(GetMenu()).DeleteMenu(ID_VIEW_RIBBON, MF_BYCOMMAND);
+			[!output WTL_NS]CMenuHandle(GetMenu()).DeleteMenu(ID_VIEW_RIBBON, MF_BYCOMMAND);
 
 [!else]
 [!if WTL_RIBBON_SINGLE_UI]
@@ -224,7 +224,7 @@ public:
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!endif]
 [!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_RICHEDIT]
-		m_font = AtlCreateControlFont();
+		m_font = [!output WTL_NS]AtlCreateControlFont();
 		m_view.SetFont(m_font);
 [!endif]
 [!if WTL_VIEWTYPE_SCROLL]
@@ -239,7 +239,7 @@ public:
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, WS_EX_CLIENTEDGE);
 [!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_RICHEDIT]
 
-		m_font = AtlCreateControlFont();
+		m_font = [!output WTL_NS]AtlCreateControlFont();
 [!endif]
 [!endif]
 [!if WTL_APPTYPE_EXPLORER]
@@ -263,7 +263,7 @@ public:
 		m_view.Create(m_splitter, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!endif]
 [!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_RICHEDIT]
-		m_font = AtlCreateControlFont();
+		m_font = [!output WTL_NS]AtlCreateControlFont();
 		m_view.SetFont(m_font);
 [!endif]
 [!if WTL_VIEWTYPE_SCROLL]
@@ -294,7 +294,7 @@ public:
 [!endif]
 
 		// register object for message filtering and idle updates
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		[!output WTL_NS]CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);
 		pLoop->AddMessageFilter(this);
 		pLoop->AddIdleHandler(this);
@@ -311,9 +311,9 @@ public:
 [!endif]
 [!if WTL_APPTYPE_TABVIEW]
 [!if WTL_USE_CMDBAR]
-		CMenuHandle menuMain = m_CmdBar.GetMenu();
+		[!output WTL_NS]CMenuHandle menuMain = m_CmdBar.GetMenu();
 [!else]
-		CMenuHandle menuMain = GetMenu();
+		[!output WTL_NS]CMenuHandle menuMain = GetMenu();
 [!endif]
 		m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
 
@@ -335,7 +335,7 @@ public:
 [!endif]
 [!endif]
 		// unregister message filtering and idle updates
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		[!output WTL_NS]CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);
 		pLoop->RemoveMessageFilter(this);
 		pLoop->RemoveIdleHandler(this);
@@ -369,7 +369,7 @@ public:
 [!endif]
 [!endif]
 		// unregister message filtering and idle updates
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		[!output WTL_NS]CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);
 		pLoop->RemoveMessageFilter(this);
 		pLoop->RemoveIdleHandler(this);
@@ -449,7 +449,7 @@ public:
 [!if WTL_USE_REBAR]
 		static BOOL bVisible = TRUE;	// initially visible
 		bVisible = !bVisible;
-		CReBarCtrl rebar = m_hWndToolBar;
+		[!output WTL_NS]CReBarCtrl rebar = m_hWndToolBar;
 [!if WTL_USE_CMDBAR]
 		int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);	// toolbar is 2nd added band
 [!else]
@@ -492,7 +492,7 @@ public:
 		UISetCheck(ID_VIEW_RIBBON, IsRibbonUI());
 [!if !WTL_USE_CMDBAR]
 		if (!IsRibbonUI())
-			SetMenu(AtlLoadMenu(IDR_MAINFRAME));
+			SetMenu([!output WTL_NS]AtlLoadMenu(IDR_MAINFRAME));
 [!endif]
 		return 0;
 	}

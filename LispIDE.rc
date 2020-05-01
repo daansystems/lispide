@@ -189,7 +189,7 @@ BEGIN
     CONTROL         IDB_LISP,IDC_STATIC,"Static",SS_BITMAP | SS_REALSIZEIMAGE | WS_BORDER,21,17,32,30
     GROUPBOX        "",IDC_STATIC,7,7,288,244
     PUSHBUTTON      "http://www.daansystems.com",IDC_WEBSITE,67,172,168,14
-    LTEXT           "(c) Copyright 2009-2018, Niek Albers, DaanSystems.com",IDC_STATIC,70,208,162,16
+    LTEXT           "(c) Copyright 2009-2020, DaanSystems.com",IDC_STATIC,82,208,143,16
 END
 
 

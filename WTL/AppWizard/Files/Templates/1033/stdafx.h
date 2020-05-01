@@ -22,20 +22,19 @@
 #define _ATL_APARTMENT_THREADED
 
 [!endif]
+[!if WTL_NO_AUTO_NS]
+#define _ATL_NO_AUTOMATIC_NAMESPACE
+#define _WTL_NO_AUTOMATIC_NAMESPACE
+
+[!endif]
 #include <atlbase.h>
 #include <atlapp.h>
 
 [!if WTL_COM_SERVER]
-extern CServerAppModule _Module;
-
-// This is here only to tell VC7 Class Wizard this is an ATL project
-#ifdef ___VC7_CLWIZ_ONLY___
-CComModule
-CExeModule
-#endif
+extern [!output WTL_NS]CServerAppModule _Module;
 
 [!else]
-extern CAppModule _Module;
+extern [!output WTL_NS]CAppModule _Module;
 
 [!endif]
 [!if WTL_ENABLE_AX || WTL_COM_SERVER]

@@ -27,6 +27,8 @@
 // CRecentDocumentListBase<T, t_cchItemLen, t_nFirstID, t_nLastID>
 // CRecentDocumentList
 // CFindFile
+// CRegProperty
+// CRegPropertyImpl<T>
 //
 // Global functions:
 //   AtlGetStockPen()
@@ -113,7 +115,7 @@ public:
 	int m_cchMaxItemLen;
 
 // Constructor
-	CRecentDocumentListBase() : m_hMenu(NULL), m_nMaxEntries(4), m_cchMaxItemLen(-1)
+	CRecentDocumentListBase() : m_nMaxEntries(4), m_hMenu(NULL), m_cchMaxItemLen(-1)
 	{
 		// These ASSERTs verify values of the template arguments
 		ATLASSERT(t_cchItemLen > m_cchMaxItemLen_Min);
@@ -133,7 +135,7 @@ public:
 		if((m_hMenu == NULL) || (::GetMenuString(m_hMenu, t_nFirstID, m_szNoEntries, t_cchItemLen, MF_BYCOMMAND) == 0))
 		{
 			T* pT = static_cast<T*>(this);
-			pT;   // avoid level 4 warning
+			(void)pT;   // avoid level 4 warning
 			ATL::Checked::tcsncpy_s(m_szNoEntries, _countof(m_szNoEntries), pT->GetMRUEmptyText(), _TRUNCATE);
 		}
 	}
@@ -284,12 +286,12 @@ public:
 
 		m_arrDocs.RemoveAll();
 
-		TCHAR szRetString[t_cchItemLen] = { 0 };
+		TCHAR szRetString[t_cchItemLen] = {};
 		_DocEntry de;
 
 		for(int nItem = m_nMaxEntries; nItem > 0; nItem--)
 		{
-			TCHAR szBuff[m_cchItemNameLen] = { 0 };
+			TCHAR szBuff[m_cchItemNameLen] = {};
 			_stprintf_s(szBuff, m_cchItemNameLen, pT->GetRegItemName(), nItem);
 			ULONG ulCount = t_cchItemLen;
 			lRet = rk.QueryStringValue(szBuff, szRetString, &ulCount);
@@ -309,7 +311,7 @@ public:
 	BOOL WriteToRegistry(LPCTSTR lpstrRegKey)
 	{
 		T* pT = static_cast<T*>(this);
-		pT;   // avoid level 4 warning
+		(void)pT;   // avoid level 4 warning
 		ATL::CRegKey rkParent;
 		ATL::CRegKey rk;
 
@@ -327,9 +329,9 @@ public:
 		int nItem;
 		for(nItem = m_arrDocs.GetSize(); nItem > 0; nItem--)
 		{
-			TCHAR szBuff[m_cchItemNameLen] = { 0 };
+			TCHAR szBuff[m_cchItemNameLen] = {};
 			_stprintf_s(szBuff, m_cchItemNameLen, pT->GetRegItemName(), nItem);
-			TCHAR szDocName[t_cchItemLen] = { 0 };
+			TCHAR szDocName[t_cchItemLen] = {};
 			GetFromList(t_nFirstID + nItem - 1, szDocName, t_cchItemLen);
 			lRet = rk.SetStringValue(szBuff, szDocName);
 			ATLASSERT(lRet == ERROR_SUCCESS);
@@ -338,7 +340,7 @@ public:
 		// delete unused keys
 		for(nItem = m_arrDocs.GetSize() + 1; nItem <= m_nMaxEntries_Max; nItem++)
 		{
-			TCHAR szBuff[m_cchItemNameLen] = { 0 };
+			TCHAR szBuff[m_cchItemNameLen] = {};
 			_stprintf_s(szBuff, m_cchItemNameLen, pT->GetRegItemName(), nItem);
 			rk.DeleteValue(szBuff);
 		}
@@ -379,7 +381,7 @@ public:
 				::DeleteMenu(m_hMenu, j, MF_BYCOMMAND);
 		}
 
-		TCHAR szItemText[t_cchItemLen + 6] = { 0 };   // add space for &, 2 digits, and a space
+		TCHAR szItemText[t_cchItemLen + 6] = {};   // add space for &, 2 digits, and a space
 		int nSize = m_arrDocs.GetSize();
 		int nItem = 0;
 		if(nSize > 0)
@@ -392,11 +394,11 @@ public:
 				}
 				else
 				{
-					TCHAR szBuff[t_cchItemLen] = { 0 };
+					TCHAR szBuff[t_cchItemLen] = {};
 					T* pT = static_cast<T*>(this);
-					pT;   // avoid level 4 warning
+					(void)pT;   // avoid level 4 warning
 					bool bRet = pT->CompactDocumentName(szBuff, m_arrDocs[nSize - 1 - nItem].szDocName, m_cchMaxItemLen);
-					bRet;   // avoid level 4 warning
+					(void)bRet;   // avoid level 4 warning
 					ATLASSERT(bRet);
 					_stprintf_s(szItemText, t_cchItemLen + 6, _T("&%i %s"), nItem + 1, szBuff);
 				}
@@ -460,14 +462,14 @@ class CFindFile
 {
 public:
 // Data members
-	WIN32_FIND_DATA m_fd;
-	TCHAR m_lpszRoot[MAX_PATH];
-	TCHAR m_chDirSeparator;
 	HANDLE m_hFind;
+	WIN32_FIND_DATA m_fd;
+	LPTSTR m_lpszRoot;
+	const TCHAR m_chDirSeparator;
 	BOOL m_bFound;
 
 // Constructor/destructor
-	CFindFile() : m_hFind(NULL), m_chDirSeparator(_T('\\')), m_bFound(FALSE)
+	CFindFile() : m_hFind(NULL), m_lpszRoot(NULL), m_chDirSeparator(_T('\\')), m_bFound(FALSE)
 	{ }
 
 	~CFindFile()
@@ -480,8 +482,7 @@ public:
 	{
 		ATLASSERT(m_hFind != NULL);
 
-		ULARGE_INTEGER nFileSize = { 0 };
-
+		ULARGE_INTEGER nFileSize = {};
 		if(m_bFound)
 		{
 			nFileSize.LowPart = m_fd.nFileSizeLow;
@@ -516,7 +517,7 @@ public:
 		if(nLen == 0)
 			return FALSE;
 
-		bool bAddSep = ((m_lpszRoot[nLen - 1] != _T('\\')) && (m_lpszRoot[nLen - 1] !=_T('/')));
+		bool bAddSep = (m_lpszRoot[nLen - 1] != m_chDirSeparator);
 
 		if((lstrlen(m_lpszRoot) + (bAddSep ?  1 : 0)) >= cchLength)
 			return FALSE;
@@ -538,7 +539,7 @@ public:
 	{
 		ATLASSERT(m_hFind != NULL);
 
-		TCHAR szBuff[MAX_PATH] = { 0 };
+		TCHAR szBuff[MAX_PATH] = {};
 		if(!GetFileName(szBuff, MAX_PATH))
 			return FALSE;
 
@@ -559,16 +560,14 @@ public:
 	{
 		ATLASSERT(m_hFind != NULL);
 
-		TCHAR szBuff[MAX_PATH] = { 0 };
-		if(!GetFilePath(szBuff, MAX_PATH))
-			return FALSE;
 		LPCTSTR lpstrFileURLPrefix = _T("file://");
-		if(lstrlen(szBuff) + lstrlen(lpstrFileURLPrefix) >= cchLength)
+		const int cchPrefix = lstrlen(lpstrFileURLPrefix);
+		if(cchPrefix >= cchLength)
 			return FALSE;
-		ATL::Checked::tcscpy_s(lpstrFileURL, cchLength, lpstrFileURLPrefix);
-		ATL::Checked::tcscat_s(lpstrFileURL, cchLength, szBuff);
 
-		return TRUE;
+		ATL::Checked::tcscpy_s(lpstrFileURL, cchLength, lpstrFileURLPrefix);
+
+		return GetFilePath(&lpstrFileURL[cchPrefix], cchLength - cchPrefix);
 	}
 
 	BOOL GetRoot(LPTSTR lpstrRoot, int cchLength) const
@@ -604,7 +603,7 @@ public:
 		if(nLen == 0)
 			return strResult;
 
-		if((strResult[nLen - 1] != _T('\\')) && (strResult[nLen - 1] != _T('/')))
+		if(strResult[nLen - 1] != m_chDirSeparator)
 			strResult += m_chDirSeparator;
 		strResult += GetFileName();
 		return strResult;
@@ -748,28 +747,41 @@ public:
 	}
 
 // Operations
-	BOOL FindFile(LPCTSTR pstrName = NULL)
+	BOOL FindFile(LPCTSTR pstrName = NULL, bool bAutoLongPath = false)
 	{
 		Close();
 
 		if(pstrName == NULL)
-		{
 			pstrName = _T("*.*");
-		}
-		else if(lstrlen(pstrName) >= MAX_PATH)
+
+		if(bAutoLongPath && (lstrlen(pstrName) >= MAX_PATH))
 		{
-			ATLASSERT(FALSE);
-			return FALSE;
+			LPCTSTR lpstrPrefix = _T("\\\\?\\");
+			int cchLongPath = lstrlen(lpstrPrefix) + lstrlen(pstrName) + 1;
+			ATL::CTempBuffer<TCHAR, _WTL_STACK_ALLOC_THRESHOLD> buff;
+			LPTSTR lpstrLongPath = buff.Allocate(cchLongPath);
+			if(lpstrLongPath != NULL)
+			{
+				ATL::Checked::tcscpy_s(lpstrLongPath, cchLongPath, lpstrPrefix);
+				ATL::Checked::tcscat_s(lpstrLongPath, cchLongPath, pstrName);
+				m_hFind = ::FindFirstFile(lpstrLongPath, &m_fd);
+			}
 		}
-
-		ATL::Checked::tcscpy_s(m_fd.cFileName, _countof(m_fd.cFileName), pstrName);
-
-		m_hFind = ::FindFirstFile(pstrName, &m_fd);
+		else
+		{
+			m_hFind = ::FindFirstFile(pstrName, &m_fd);
+		}
 
 		if(m_hFind == INVALID_HANDLE_VALUE)
 			return FALSE;
 
-		bool bFullPath = (::GetFullPathName(pstrName, MAX_PATH, m_lpszRoot, NULL) != 0);
+		int cchRoot = ::GetFullPathName(pstrName, 0, NULL, NULL);
+		if(cchRoot > 0)
+			ATLTRY(m_lpszRoot = new TCHAR[cchRoot]);
+		if(m_lpszRoot == NULL)
+			return FALSE;
+
+		bool bFullPath = (::GetFullPathName(pstrName, cchRoot, m_lpszRoot, NULL) != 0);
 
 		// passed name isn't a valid path but was found by the API
 		ATLASSERT(bFullPath);
@@ -781,24 +793,10 @@ public:
 		}
 		else
 		{
-			// find the last forward or backward whack
-			LPTSTR pstrBack  = _tcsrchr(m_lpszRoot, _T('\\'));
-			LPTSTR pstrFront = _tcsrchr(m_lpszRoot, _T('/'));
-
-			if((pstrFront != NULL) || (pstrBack != NULL))
-			{
-				if(pstrFront == NULL)
-					pstrFront = m_lpszRoot;
-				if(pstrBack == NULL)
-					pstrBack = m_lpszRoot;
-
-				// from the start to the last whack is the root
-
-				if(pstrFront >= pstrBack)
-					*pstrFront = _T('\0');
-				else
-					*pstrBack = _T('\0');
-			}
+			// find the last separator
+			LPTSTR pstrSep  = _tcsrchr(m_lpszRoot, m_chDirSeparator);
+			if(pstrSep != NULL)
+				*pstrSep = _T('\0');
 		}
 
 		m_bFound = TRUE;
@@ -825,11 +823,373 @@ public:
 	{
 		m_bFound = FALSE;
 
+		delete [] m_lpszRoot;
+		m_lpszRoot = NULL;
+
 		if((m_hFind != NULL) && (m_hFind != INVALID_HANDLE_VALUE))
 		{
 			::FindClose(m_hFind);
 			m_hFind = NULL;
 		}
+	}
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CRegProperty and CRegPropertyImpl<> - properties stored in registry
+
+// How to use: Derive a class from CRegPropertyImpl, add data members 
+// for properties, and add REGPROP map to map properties to registry value names.
+// You can then call Read() and Write() methods to read and write properties to/from registry.
+// You can also use CRegProperty class directly, for one time read/write, or for custom stuff.
+
+#define REGPROP_CURRENTUSER   0x0000
+#define REGPROP_LOCALMACHINE  0x0001
+#define REGPROP_READONLY      0x0002
+#define REGPROP_WRITEONLY     0x0004
+
+class CRegProperty
+{
+public:
+// Type declarations
+	struct BinaryProp
+	{
+		void* pBinary;
+		ULONG uSize;   // buffer size in bytes, used size after read
+
+		BinaryProp() : pBinary(NULL), uSize(0U)
+		{ }
+	};
+
+	struct CharArrayProp
+	{
+		LPTSTR lpstrText;
+		ULONG uSize;   // buffer size in chars
+
+		CharArrayProp() : lpstrText(NULL), uSize(0U)
+		{ }
+	};
+
+// Data members
+	ATL::CRegKey m_regkey;
+	WORD m_wFlags;
+
+// Constructor
+	CRegProperty() : m_wFlags(REGPROP_CURRENTUSER)
+	{ }
+
+// Registry key methods
+	LSTATUS OpenRegKey(LPCTSTR lpstrRegKey, bool bWrite)
+	{
+		ATLASSERT(m_regkey.m_hKey == NULL);
+
+		HKEY hKey = ((m_wFlags & REGPROP_LOCALMACHINE) != 0) ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+		REGSAM sam = KEY_READ | KEY_WRITE;
+		LSTATUS lRet = -1;
+		if(bWrite)
+			lRet = m_regkey.Create(hKey, lpstrRegKey, NULL, 0, ((m_wFlags & REGPROP_WRITEONLY) != 0) ? KEY_WRITE : sam);
+		else
+			lRet = m_regkey.Open(hKey, lpstrRegKey, ((m_wFlags & REGPROP_READONLY) != 0) ? KEY_READ : sam);
+
+		return lRet;
+	}
+
+	void CloseRegKey()
+	{
+		LSTATUS lRet = m_regkey.Close();
+		(void)lRet;   // avoid level 4 warning
+		ATLASSERT(lRet == ERROR_SUCCESS);
+	}
+
+// Flag methods
+	WORD GetFlags() const
+	{
+		return m_wFlags;
+	}
+
+	WORD SetFlags(WORD wFlags, WORD wMask = 0)
+	{
+		WORD wPrevFlags = m_wFlags;
+		if(wMask == 0)
+			m_wFlags = wFlags;
+		else
+			m_wFlags = (m_wFlags & ~wMask) | (wFlags & wMask);
+
+		return wPrevFlags;
+	}
+
+// Generic read/write methods
+	template <class TProp>
+	LSTATUS ReadProp(LPCTSTR lpstrRegValue, TProp& prop)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		DWORD dwRet = 0;
+		LSTATUS lRet = m_regkey.QueryDWORDValue(lpstrRegValue, dwRet);
+		if(lRet == ERROR_SUCCESS)
+			prop = static_cast<TProp>(dwRet);
+
+		return lRet;
+	}
+
+	template <class TProp>
+	LSTATUS WriteProp(LPCTSTR lpstrRegValue, TProp& prop)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		return m_regkey.SetDWORDValue(lpstrRegValue, (DWORD)prop);
+	}
+
+// Specialization for bool
+	template <>
+	LSTATUS ReadProp(LPCTSTR lpstrRegValue, bool& bProp)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		DWORD dwRet = 0;
+		LSTATUS lRet = m_regkey.QueryDWORDValue(lpstrRegValue, dwRet);
+		if(lRet == ERROR_SUCCESS)
+			bProp = (dwRet != 0);
+
+		return lRet;
+	}
+
+	template <>
+	LSTATUS WriteProp(LPCTSTR lpstrRegValue, bool& bProp)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		return m_regkey.SetDWORDValue(lpstrRegValue, bProp ? 1 : 0);
+	}
+
+// Specialization for HFONT
+	template <>
+	LSTATUS ReadProp(LPCTSTR lpstrRegValue, HFONT& hFont)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		LOGFONT lf = {};
+		ULONG uSize = sizeof(lf);
+		LSTATUS lRet = m_regkey.QueryBinaryValue(lpstrRegValue, &lf, &uSize);
+		if(lRet == ERROR_SUCCESS)
+		{
+			if(hFont != NULL)
+				::DeleteObject(hFont);
+
+			hFont = ::CreateFontIndirect(&lf);
+			if(hFont == NULL)
+				lRet = ERROR_INVALID_DATA;
+		}
+
+		return lRet;
+	}
+
+	template <>
+	LSTATUS WriteProp(LPCTSTR lpstrRegValue, HFONT& hFont)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		CLogFont lf(hFont);
+		return m_regkey.SetBinaryValue(lpstrRegValue, &lf, sizeof(lf));
+	}
+
+// Specialization for BinaryProp
+	template <>
+	LSTATUS ReadProp(LPCTSTR lpstrRegValue, BinaryProp& binProp)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		ULONG uSize = 0U;
+		LSTATUS lRet = m_regkey.QueryBinaryValue(lpstrRegValue, NULL, &uSize);
+		if(lRet == ERROR_SUCCESS)
+		{
+			if(uSize <= binProp.uSize)
+				lRet = m_regkey.QueryBinaryValue(lpstrRegValue, binProp.pBinary, &binProp.uSize);
+			else
+				lRet = ERROR_OUTOFMEMORY;
+		}
+
+		return lRet;
+	}
+
+	template <>
+	LSTATUS WriteProp(LPCTSTR lpstrRegValue, BinaryProp& binProp)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		return m_regkey.SetBinaryValue(lpstrRegValue, binProp.pBinary, binProp.uSize);
+	}
+
+// Specialization for CharArrayProp
+	template <>
+	LSTATUS ReadProp(LPCTSTR lpstrRegValue, CharArrayProp& caProp)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		ULONG uSize = 0U;
+		LSTATUS lRet = m_regkey.QueryStringValue(lpstrRegValue, NULL, &uSize);
+		if(lRet == ERROR_SUCCESS)
+		{
+			if(uSize <= caProp.uSize)
+				lRet = m_regkey.QueryStringValue(lpstrRegValue, caProp.lpstrText, &caProp.uSize);
+			else
+				lRet = ERROR_OUTOFMEMORY;
+		}
+
+		return lRet;
+	}
+
+	template <>
+	LSTATUS WriteProp(LPCTSTR lpstrRegValue, CharArrayProp& caProp)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		return m_regkey.SetStringValue(lpstrRegValue, caProp.lpstrText);
+	}
+
+// Specialization for CString
+#ifdef __ATLSTR_H__
+	template <>
+	LSTATUS ReadProp(LPCTSTR lpstrRegValue, ATL::CString& strProp)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		ULONG uSize = 0U;
+		LSTATUS lRet = m_regkey.QueryStringValue(lpstrRegValue, NULL, &uSize);
+		if(lRet == ERROR_SUCCESS)
+		{
+			lRet = m_regkey.QueryStringValue(lpstrRegValue, strProp.GetBufferSetLength(uSize), &uSize);
+			strProp.ReleaseBuffer();
+		}
+
+		return lRet;
+	}
+
+	template <>
+	LSTATUS WriteProp(LPCTSTR lpstrRegValue, ATL::CString& strProp)
+	{
+		ATLASSERT(m_regkey.m_hKey != NULL);
+
+		return m_regkey.SetStringValue(lpstrRegValue, (LPCTSTR)strProp);
+	}
+#endif // __ATLSTR_H__
+
+// Static methods for one time read/write
+	template <class TProp>
+	static bool ReadOne(LPCTSTR lpstrRegKey, LPCTSTR lpstrRegValue, TProp& prop, WORD wFlags = REGPROP_CURRENTUSER)
+	{
+		CRegProperty rp;
+		rp.SetFlags(wFlags);
+		LSTATUS lRet = rp.OpenRegKey(lpstrRegKey, false);
+		if(lRet == ERROR_SUCCESS)
+		{
+			lRet = rp.ReadProp(lpstrRegValue, prop);
+			rp.CloseRegKey();
+		}
+
+		return (lRet == ERROR_SUCCESS) || (lRet == ERROR_FILE_NOT_FOUND);
+	}
+
+	template <class TProp>
+	static bool WriteOne(LPCTSTR lpstrRegKey, LPCTSTR lpstrRegValue, TProp& prop, WORD wFlags = REGPROP_CURRENTUSER)
+	{
+		CRegProperty rp;
+		rp.SetFlags(wFlags);
+		LSTATUS lRet = rp.OpenRegKey(lpstrRegKey, true);
+		if(lRet == ERROR_SUCCESS)
+		{
+			lRet = rp.WriteProp(lpstrRegValue, prop);
+			rp.CloseRegKey();
+		}
+
+		return (lRet == ERROR_SUCCESS);
+	}
+};
+
+
+#define BEGIN_REGPROP_MAP(class) \
+	void ReadWriteAll(bool bWrite) \
+	{
+
+#define REG_PROPERTY(name, prop) \
+		this->ReadWriteProp(name, prop, bWrite);
+
+#define END_REGPROP_MAP() \
+	}
+
+template <class T>
+class CRegPropertyImpl : public CRegProperty
+{
+public:
+// Methods
+	void Read(LPCTSTR lpstrRegKey)
+	{
+		T* pT = static_cast<T*>(this);
+		LSTATUS lRet = pT->OpenRegKey(lpstrRegKey, false);
+		if(lRet == ERROR_SUCCESS)
+		{
+			pT->ReadWriteAll(false);
+			pT->OnRead(lpstrRegKey);
+
+			pT->CloseRegKey();
+		}
+		else if(lRet != ERROR_FILE_NOT_FOUND)
+		{
+			pT->OnReadError(NULL, lRet);
+		}
+	}
+
+	void Write(LPCTSTR lpstrRegKey)
+	{
+		T* pT = static_cast<T*>(this);
+		LSTATUS lRet = pT->OpenRegKey(lpstrRegKey, true);
+		if(lRet == ERROR_SUCCESS)
+		{
+			pT->ReadWriteAll(true);
+			pT->OnWrite(lpstrRegKey);
+
+			pT->CloseRegKey();
+		}
+		else
+		{
+			pT->OnWriteError(NULL, lRet);
+		}
+	}
+
+// Implementation
+	template <class TProp>
+	void ReadWriteProp(LPCTSTR lpstrRegValue, TProp& prop, bool bWrite)
+	{
+		T* pT = static_cast<T*>(this);
+		if(bWrite)
+		{
+			LSTATUS lRet = pT->WriteProp(lpstrRegValue, prop);
+			if(lRet != ERROR_SUCCESS)
+				pT->OnWriteError(lpstrRegValue, lRet);
+		}
+		else
+		{
+			LSTATUS lRet = pT->ReadProp(lpstrRegValue, prop);
+			if((lRet != ERROR_SUCCESS) && (lRet != ERROR_FILE_NOT_FOUND))
+				pT->OnReadError(lpstrRegValue, lRet);
+		}
+	}
+
+// Overrideable handlers
+	void OnRead(LPCTSTR /*lpstrRegValue*/)
+	{ }
+
+	void OnWrite(LPCTSTR /*lpstrRegValue*/)
+	{ }
+
+	void OnReadError(LPCTSTR /*lpstrRegValue*/, LSTATUS /*lError*/)
+	{
+		ATLASSERT(FALSE);
+	}
+
+	void OnWriteError(LPCTSTR /*lpstrRegValue*/, LSTATUS /*lError*/)
+	{
+		ATLASSERT(FALSE);
 	}
 };
 
@@ -877,7 +1237,8 @@ inline bool _IsDBCSTrailByte(LPCTSTR lpstr, int nChar)
 	}
 	return ((nChar > 0) && (((nChar - i) & 1) != 0));
 #else // _UNICODE
-	lpstr; nChar;
+	(void)lpstr;   // avoid level 4 warning
+	(void)nChar;   // avoid level 4 warning
 	return false;
 #endif // _UNICODE
 }
@@ -982,6 +1343,6 @@ inline bool AtlCompactPath(LPTSTR lpstrOut, LPCTSTR lpstrIn, int cchLen)
 	return bRet;
 }
 
-}; // namespace WTL
+} // namespace WTL
 
 #endif // __ATLMISC_H__

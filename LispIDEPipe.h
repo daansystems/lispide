@@ -181,7 +181,8 @@ public:
 
 	LRESULT OnPaste(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) {
 		if (OpenClipboard()) {
-			LPCTSTR pc = (LPCTSTR)GetClipboardData(CF_UNICODETEXT);
+			// LPCTSTR pc = (LPCTSTR)GetClipboardData(CF_UNICODETEXT);
+			LPCTSTR pc = (LPCTSTR)GetClipboardData(CF_TEXT);
 			if (pc) {
 				CString str(pc);
 				if (m_CurPos == -1) m_CurPos = GetCurrentPos();

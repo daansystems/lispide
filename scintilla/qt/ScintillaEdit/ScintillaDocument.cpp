@@ -16,6 +16,7 @@
 #include "ILexer.h"
 #include "Scintilla.h"
 
+#include "CharacterCategory.h"
 #include "Position.h"
 #include "UniqueString.h"
 #include "SplitVector.h"
@@ -41,13 +42,13 @@ public:
     explicit WatcherHelper(ScintillaDocument *owner_);
     virtual ~WatcherHelper();
 
-    void NotifyModifyAttempt(Document *doc, void *userData);
-    void NotifySavePoint(Document *doc, void *userData, bool atSavePoint);
-    void NotifyModified(Document *doc, DocModification mh, void *userData);
-    void NotifyDeleted(Document *doc, void *userData);
+    void NotifyModifyAttempt(Document *doc, void *userData) override;
+    void NotifySavePoint(Document *doc, void *userData, bool atSavePoint) override;
+    void NotifyModified(Document *doc, DocModification mh, void *userData) override;
+    void NotifyDeleted(Document *doc, void *userData) noexcept override;
     void NotifyStyleNeeded(Document *doc, void *userData, Sci::Position endPos);
-    void NotifyLexerChanged(Document *doc, void *userData);
-    void NotifyErrorOccurred(Document *doc, void *userData, int status);
+    void NotifyLexerChanged(Document *doc, void *userData) override;
+    void NotifyErrorOccurred(Document *doc, void *userData, int status) override;
 };
 
 WatcherHelper::WatcherHelper(ScintillaDocument *owner_) : owner(owner_) {
@@ -73,7 +74,7 @@ void WatcherHelper::NotifyModified(Document *, DocModification mh, void *) {
                          mh.linesAdded, mh.line, mh.foldLevelNow, mh.foldLevelPrev);
 }
 
-void WatcherHelper::NotifyDeleted(Document *, void *) {
+void WatcherHelper::NotifyDeleted(Document *, void *) noexcept {
 }
 
 void WatcherHelper::NotifyStyleNeeded(Document *, void *, Sci::Position endPos) {

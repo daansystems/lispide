@@ -54,7 +54,7 @@ public:
 		return (BOOL)SendMessage(WM_FORWARDMSG, 0, (LPARAM)pMsg);
 [!else]
 [!if WTL_VIEWTYPE_FORM]
-		return CWindow::IsDialogMessage(pMsg);
+		return [!output ATL_NS]CWindow::IsDialogMessage(pMsg);
 [!else]
 		pMsg;
 		return FALSE;
@@ -65,10 +65,10 @@ public:
 [!if WTL_VIEWTYPE_SCROLL]
 [!if WTL_USE_CPP_FILES]
 
-	void DoPaint(CDCHandle dc);
+	void DoPaint([!output WTL_NS]CDCHandle dc);
 [!else]
 
-	void DoPaint(CDCHandle dc)
+	void DoPaint([!output WTL_NS]CDCHandle dc)
 	{
 		//TODO: Add your drawing code here
 	}
@@ -108,7 +108,7 @@ public:
 
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		CPaintDC dc(m_hWnd);
+		[!output WTL_NS]CPaintDC dc(m_hWnd);
 
 		//TODO: Add your drawing code here
 

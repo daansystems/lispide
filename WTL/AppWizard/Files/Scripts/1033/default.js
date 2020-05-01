@@ -44,28 +44,50 @@ function OnFinish(selProj, selObj)
 			wizard.AddSymbol("WTL_USE_RIBBON", false);
 		}
 
+		// Set namepaces
+		if(wizard.FindSymbol("WTL_NO_AUTO_NS"))
+		{
+			wizard.AddSymbol("WTL_NS", "WTL::");
+			wizard.AddSymbol("ATL_NS", "ATL::");
+		}
+		else
+		{
+			wizard.AddSymbol("WTL_NS", "");
+			wizard.AddSymbol("ATL_NS", "");
+		}
+
+		var strWTL_NS = wizard.FindSymbol("WTL_NS");
+		var strATL_NS = wizard.FindSymbol("ATL_NS");
+
+		wizard.AddSymbol("WTL_FRAME_BASE_CLASS", strWTL_NS + wizard.FindSymbol("WTL_FRAME_BASE_CLASS"));
+		wizard.AddSymbol("WTL_CHILD_FRAME_BASE_CLASS", strWTL_NS + wizard.FindSymbol("WTL_CHILD_FRAME_BASE_CLASS"));
+
+		wizard.AddSymbol("WTL_MAINDLG_BASE_CLASS", strATL_NS + wizard.FindSymbol("WTL_MAINDLG_BASE_CLASS"));
+		wizard.AddSymbol("WTL_VIEW_BASE_CLASS", strATL_NS + wizard.FindSymbol("WTL_VIEW_BASE_CLASS"));
+		wizard.AddSymbol("WTL_VIEW_BASE", strATL_NS + wizard.FindSymbol("WTL_VIEW_BASE"));
+
 		// Set app type symbols
 		if (wizard.FindSymbol("WTL_APPTYPE_SDI") || wizard.FindSymbol("WTL_APPTYPE_MTSDI") || 
 		    wizard.FindSymbol("WTL_APPTYPE_TABVIEW") || wizard.FindSymbol("WTL_APPTYPE_EXPLORER"))
 		{
 			if (wizard.FindSymbol("WTL_USE_RIBBON"))
-				wizard.AddSymbol("WTL_FRAME_BASE_CLASS","CRibbonFrameWindowImpl");
+				wizard.AddSymbol("WTL_FRAME_BASE_CLASS", strWTL_NS + "CRibbonFrameWindowImpl");
 			else
-				wizard.AddSymbol("WTL_FRAME_BASE_CLASS","CFrameWindowImpl");
+				wizard.AddSymbol("WTL_FRAME_BASE_CLASS", strWTL_NS + "CFrameWindowImpl");
 		}
 		else if(wizard.FindSymbol("WTL_APPTYPE_MDI"))
 		{
-			wizard.AddSymbol("WTL_FRAME_BASE_CLASS", "CMDIFrameWindowImpl");
-			wizard.AddSymbol("WTL_CHILD_FRAME_BASE_CLASS","CMDIChildWindowImpl");
+			wizard.AddSymbol("WTL_FRAME_BASE_CLASS", strWTL_NS + "CMDIFrameWindowImpl");
+			wizard.AddSymbol("WTL_CHILD_FRAME_BASE_CLASS", strWTL_NS + "CMDIChildWindowImpl");
 			wizard.AddSymbol("WTL_USE_RIBBON", false);
 		}
 		else if(wizard.FindSymbol("WTL_APPTYPE_DLG"))
 		{
 			wizard.AddSymbol("WTL_MAINDLG_CLASS","CMainDlg");
 			if(wizard.FindSymbol("WTL_ENABLE_AX"))
-				wizard.AddSymbol("WTL_MAINDLG_BASE_CLASS", "CAxDialogImpl");
+				wizard.AddSymbol("WTL_MAINDLG_BASE_CLASS", strATL_NS + "CAxDialogImpl");
 			else
-				wizard.AddSymbol("WTL_MAINDLG_BASE_CLASS", "CDialogImpl");
+				wizard.AddSymbol("WTL_MAINDLG_BASE_CLASS", strATL_NS + "CDialogImpl");
 
 			wizard.AddSymbol("WTL_USE_RIBBON", false);
 			wizard.AddSymbol("WTL_USE_TOOLBAR", false);
@@ -107,44 +129,44 @@ function OnFinish(selProj, selObj)
 			case "WTL_VIEWTYPE_FORM":
 				wizard.AddSymbol("WTL_VIEWTYPE_FORM", true);
 				if(wizard.FindSymbol("WTL_ENABLE_AX") && wizard.FindSymbol("WTL_HOST_AX"))
-					wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CAxDialogImpl");
+					wizard.AddSymbol("WTL_VIEW_BASE_CLASS", strATL_NS + "CAxDialogImpl");
 				else
-					wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CDialogImpl");
+					wizard.AddSymbol("WTL_VIEW_BASE_CLASS", strATL_NS + "CDialogImpl");
 				break;
 			case "WTL_VIEWTYPE_LISTBOX":
 				wizard.AddSymbol("WTL_VIEWTYPE_LISTBOX", true);
-				wizard.AddSymbol("WTL_VIEW_BASE", "CListBox");
+				wizard.AddSymbol("WTL_VIEW_BASE", strWTL_NS + "CListBox");
 				wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LBS_NOINTEGRALHEIGHT | LBS_NOTIFY | LBS_WANTKEYBOARDINPUT");
 				break;
 			case "WTL_VIEWTYPE_EDIT":
 				wizard.AddSymbol("WTL_VIEWTYPE_EDIT", true);
-				wizard.AddSymbol("WTL_VIEW_BASE", "CEdit");
+				wizard.AddSymbol("WTL_VIEW_BASE", strWTL_NS + "CEdit");
 				wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | ES_NOHIDESEL");
 				break;
 			case "WTL_VIEWTYPE_LISTVIEW":
 				wizard.AddSymbol("WTL_VIEWTYPE_LISTVIEW", true);
-				wizard.AddSymbol("WTL_VIEW_BASE", "CListViewCtrl");
+				wizard.AddSymbol("WTL_VIEW_BASE", strWTL_NS + "CListViewCtrl");
 				wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS");
 				break;
 			case "WTL_VIEWTYPE_TREEVIEW":
 				wizard.AddSymbol("WTL_VIEWTYPE_TREEVIEW", true);
-				wizard.AddSymbol("WTL_VIEW_BASE", "CTreeViewCtrl");
+				wizard.AddSymbol("WTL_VIEW_BASE", strWTL_NS + "CTreeViewCtrl");
 				wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS");
 				break;
 			case "WTL_VIEWTYPE_RICHEDIT":
 				wizard.AddSymbol("WTL_VIEWTYPE_RICHEDIT", true);
-				wizard.AddSymbol("WTL_VIEW_BASE", "CRichEditCtrl");
+				wizard.AddSymbol("WTL_VIEW_BASE", strWTL_NS + "CRichEditCtrl");
 				wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | ES_NOHIDESEL | ES_SAVESEL");
 				break;
 			case "WTL_VIEWTYPE_HTML":
 				wizard.AddSymbol("WTL_VIEWTYPE_HTML", true);
-				wizard.AddSymbol("WTL_VIEW_BASE", "CAxWindow");
+				wizard.AddSymbol("WTL_VIEW_BASE", strATL_NS + "CAxWindow");
 				wizard.AddSymbol("WTL_ENABLE_AX", true);
 				wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL");
 				break;
 			case "WTL_VIEWTYPE_SCROLL":
 				wizard.AddSymbol("WTL_VIEWTYPE_SCROLL", true);
-				wizard.AddSymbol("WTL_VIEW_BASE_CLASS", "CScrollWindowImpl");
+				wizard.AddSymbol("WTL_VIEW_BASE_CLASS", strWTL_NS + "CScrollWindowImpl");
 				wizard.AddSymbol("WTL_VIEW_STYLES", "WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL");
 				break;
 			default:
@@ -316,7 +338,8 @@ function AddConfigurations(proj, strProjectName)
 			if(bDebug)
 			{
 				CLTool.RuntimeLibrary = rtMultiThreadedDebug;
-				CLTool.MinimalRebuild = true;
+				if(WizardVersion < 15.0)
+					CLTool.MinimalRebuild = true;
 				CLTool.DebugInformationFormat = debugEditAndContinue;
 				CLTool.BasicRuntimeChecks = runtimeBasicCheckAll;
 				CLTool.Optimization = optimizeDisabled;

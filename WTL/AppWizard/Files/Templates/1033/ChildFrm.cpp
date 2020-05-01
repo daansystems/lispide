@@ -27,7 +27,7 @@ LRESULT [!output WTL_CHILD_FRAME_CLASS]::OnCreate(UINT /*uMsg*/, WPARAM /*wParam
 [!else]
 	m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, [!output WTL_VIEW_STYLES], [!output WTL_VIEW_EX_STYLES]);
 [!if WTL_VIEWTYPE_LISTBOX || WTL_VIEWTYPE_EDIT || WTL_VIEWTYPE_RICHEDIT]
-	m_font = AtlCreateControlFont();
+	m_font = [!output WTL_NS]AtlCreateControlFont();
 	m_view.SetFont(m_font);
 [!endif]
 [!if WTL_VIEWTYPE_SCROLL]
