@@ -8,6 +8,7 @@ syntax: glob
 __pycache__
 *.pyc
 *.dll
+*.so
 *.dylib
 *.framework
 *.pyd
@@ -21,6 +22,7 @@ __pycache__
 *.sbr
 *.suo
 *.aps
+*.sln
 *.vcxproj.*
 *.idb
 *.bsc
@@ -46,6 +48,7 @@ xcuserdata/
 *.xcsettings
 xcschememanagement.plist
 .DS_Store
+Release
 Debug
 cocoa/build
 cocoa/ScintillaFramework/build
@@ -71,3 +74,5 @@ meson-logs
 build.ninja
 .ninja*
 compile_commands.json
+.vscode
+VTune Profiler Results

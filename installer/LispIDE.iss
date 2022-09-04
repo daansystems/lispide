@@ -11,15 +11,16 @@ AppPublisher=DaanSystems
 AppPublisherURL=http://www.daansystems.com/
 AppSupportURL=http://www.daansystems.com/
 AppUpdatesURL=http://www.daansystems.com/
-DefaultDirName={pf}\LispIDE
+DefaultDirName={commonpf}\LispIDE
 DefaultGroupName=LispIDE
 LicenseFile=..\License.txt
-InfoBeforeFile=..\ReadMe.txt
+InfoBeforeFile=..\README.md
 OutputDir=.
 OutputBaseFilename=LispIDE_Setup
 Compression=lzma
 SolidCompression=yes
 WizardImageFile=installer.bmp
+SignTool=DaanSystems $f
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -28,15 +29,15 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
 
 [Files]
-Source: "../Release/LispIDE.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "../ReadMe.txt"; DestDir: "{app}"; Flags: ignoreversion isreadme
+Source: "../x64/Release/LispIDE.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "../README.md"; DestDir: "{app}"; Flags: ignoreversion isreadme
 Source: "../doc/CLHS.chm"; DestDir: "{app}"; Flags: ignoreversion
 Source: "../doc/CLtL2.chm"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\LispIDE"; Filename: "{app}\LispIDE.exe"; WorkingDir: "{app}"
-Name: "{group}\ReadMe.txt"; Filename: "{app}\ReadMe.txt"
+Name: "{group}\README.md"; Filename: "{app}\README.md"
 Name: "{group}\Common Lisp HyperSpec"; Filename: "{app}\CLHS.chm"
 Name: "{group}\Common Lisp The Language, 2nd Edition"; Filename: "{app}\CLtL2.chm"
 Name: "{group}\{cm:UninstallProgram,LispIDE}"; Filename: "{uninstallexe}"

@@ -1,10 +1,14 @@
-// LispIDE.cpp : main source file for LispIDE.exe
-//
+// LispIDE.cpp : Implementation of WinMain
 
-#include "stdafx.h"
+#include "pch.h"
+#include "framework.h"
+#include "resource.h"
 
 CAppModule _Module;
 CAppSettings g_Settings;
+
+#undef CreateEx
+
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {

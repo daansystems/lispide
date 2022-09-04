@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Script to generate CaseConvert.cxx from Python's Unicode data
 # Should be run rarely when a Python with a new version of Unicode data is available.
 # Requires Python 3.3 or later
@@ -16,7 +17,7 @@
 # strings with original, folded, upper, and lower separated by '|'.
 # There are 126 complex cases.
 
-import codecs, itertools, os, string, sys, unicodedata
+import itertools, string, sys
 
 from FileGenerator import Regenerate
 
@@ -98,7 +99,7 @@ def groupRanges(symmetrics):
 
     rangeCoverage = list(flatten([range(r[0], r[0]+r[2]*r[3], r[3]) for r in rangeGroups]))
 
-    nonRanges = [(l, u) for l, u, d in symmetrics if l not in rangeCoverage]
+    nonRanges = [(l, u) for l, u, _d in symmetrics if l not in rangeCoverage]
 
     return rangeGroups, nonRanges
 

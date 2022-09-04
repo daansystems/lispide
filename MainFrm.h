@@ -21,6 +21,7 @@ public:
 	CHorSplitterWindow m_wndSplit;
 	CRecentDocumentList m_mru;
 	COpenDocumentList m_opendocs;
+	CString m_FileExtensions;
 
 	int m_DocumentCounter;
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
@@ -74,6 +75,7 @@ public:
 		UPDATE_ELEMENT(ID_KEYWORDSET_ISLISP, UPDUI_MENUPOPUP | UPDUI_CHECKED)
 		UPDATE_ELEMENT(ID_KEYWORDSET_PICOLISP, UPDUI_MENUPOPUP | UPDUI_CHECKED)
 		UPDATE_ELEMENT(ID_KEYWORDSET_CLOJURE, UPDUI_MENUPOPUP | UPDUI_CHECKED)
+		UPDATE_ELEMENT(ID_KEYWORDSET_JANET, UPDUI_MENUPOPUP | UPDUI_CHECKED)
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP_EX(CMainFrame)
@@ -114,6 +116,7 @@ public:
 		COMMAND_ID_HANDLER_EX(ID_KEYWORDSET_ISLISP, OnSetKeyWordSet)
 		COMMAND_ID_HANDLER_EX(ID_KEYWORDSET_PICOLISP, OnSetKeyWordSet)
 		COMMAND_ID_HANDLER_EX(ID_KEYWORDSET_CLOJURE, OnSetKeyWordSet)
+		COMMAND_ID_HANDLER_EX(ID_KEYWORDSET_JANET, OnSetKeyWordSet)
 		COMMAND_ID_HANDLER_EX(ID_HELP_COMMONLISPHYPERSPEC, OnCLHS)
 		COMMAND_ID_HANDLER_EX(ID_HELP_COMMONLISPTHELANGUAGE, OnCLTL)
 		COMMAND_ID_HANDLER_EX(ID_VIEW_TOOLBAR, OnViewToolBar)
@@ -347,6 +350,7 @@ public:
 		UISetCheck(ID_KEYWORDSET_ISLISP, g_Settings.GetUserProfileDword("Settings", "KeywordSet") == 3);
 		UISetCheck(ID_KEYWORDSET_PICOLISP, g_Settings.GetUserProfileDword("Settings", "KeywordSet") == 4);
 		UISetCheck(ID_KEYWORDSET_CLOJURE, g_Settings.GetUserProfileDword("Settings", "KeywordSet") == 5);
+		UISetCheck(ID_KEYWORDSET_JANET, g_Settings.GetUserProfileDword("Settings", "KeywordSet") == 6);
 		int tabSize = g_Settings.GetUserProfileDword("Settings", "TabSize");
 		if (tabSize == 0) tabSize = 4;
 		UISetCheck(ID_SETTINGS_TABSIZE_4, tabSize == 4);
@@ -381,6 +385,32 @@ public:
 		ATLASSERT(pLoop != NULL);
 		pLoop->AddMessageFilter(this);
 		pLoop->AddIdleHandler(this);
+
+		DWORD keywordset = g_Settings.GetUserProfileDword("Settings", "KeywordSet");
+		switch (keywordset) {
+		case 0:
+			m_FileExtensions = _T("Lisp Files (*.lisp;*.lsp)\0*.lisp;*.lsp\0All Files\0*.*\0");
+			break;
+		case 1:
+			m_FileExtensions = _T("Scheme Files (*.scm;*.sps;*.sls;*.sld;*.rkt)\0*.scm;*.sps;*.sls;*.sld;*.rkt\0All Files\0*.*\0");
+			break;
+		case 2:
+			m_FileExtensions = _T("newLisp Files (*.lsp)\0*.lsp\0All Files\0*.*\0");
+			break;
+		case 3:
+			m_FileExtensions = _T("ISLisp Files (*.lsp)\0*.lsp\0All Files\0*.*\0");
+			break;
+		case 4:
+			m_FileExtensions = _T("{PicoLisp Files (*.l)\0*.l\0All Files\0*.*\0");
+			break;
+		case 5:
+			m_FileExtensions = _T("Clojure Files(*.clj)\0 * .clj\0All Files\0 * .*\0");
+			break;
+		case 6:
+			m_FileExtensions = _T("Janet Files(*.janet)\0 * .janet\0All Files\0 * .*\0");
+			break;
+		}
+
 		return 0;
 	}
 
@@ -454,6 +484,9 @@ public:
 		case ID_KEYWORDSET_CLOJURE:
 			g_Settings.WriteUserProfileDword("Settings", "KeywordSet", 5);
 			break;
+		case ID_KEYWORDSET_JANET:
+			g_Settings.WriteUserProfileDword("Settings", "KeywordSet", 6);
+			break;
 		}
 		AskRestart();
 		return TRUE;
@@ -503,6 +536,9 @@ public:
 			case ID_SETTINGS_TABSIZE_8:
 				tabSize = 8;
 				break;
+			default:
+				tabSize = 4;
+				break;
 			}
 			g_Settings.WriteUserProfileDword("Settings", "TabSize", tabSize);
 		}
@@ -541,6 +577,9 @@ public:
 		CLispIDEView* pView = new CLispIDEView;
 		pView->Create(m_view, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_HSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | ES_NOHIDESEL, 0);
 		pView->Init();
+
+		
+
 		CString docname;
 		docname.Format("Document%d", ++m_DocumentCounter);
 		m_view.AddPage(pView->m_hWnd, docname, 0, pView);
@@ -549,8 +588,7 @@ public:
 	LRESULT OnFileOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/)
 	{
 		CFileDialog fileDlg(true, _T("lisp"), NULL,
-			OFN_FILEMUSTEXIST,
-			_T("Lisp Files (*.lisp;*.lsp)\0*.lisp;*.lsp\0All Files\0*.*\0"));
+			OFN_FILEMUSTEXIST, m_FileExtensions);
 		if (IDOK == fileDlg.DoModal()) {
 			OpenTheFile(fileDlg.m_szFileName);
 
@@ -595,8 +633,7 @@ public:
 	{
 		CString sSelectedFile;
 		CFileDialog fileDlg(false, _T("lisp"), NULL,
-			OFN_OVERWRITEPROMPT,
-			_T("Lisp Files (*.lisp;*.lsp)\0*.lisp;*.lsp\0All Files\0*.*\0"));
+			OFN_OVERWRITEPROMPT, m_FileExtensions);
 		if (IDOK == fileDlg.DoModal()) {
 			sSelectedFile = fileDlg.m_szFileName;
 			CLispIDEView* pView = GetActiveView();

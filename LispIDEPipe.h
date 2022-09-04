@@ -12,7 +12,7 @@
 
 #define MAXTEXT (1024*1024)
 
-class CLispIDEPipe : public CWindowImpl<CLispIDEPipe, CScintillaCtrl>
+class CLispIDEPipe : public CWindowImpl<CLispIDEPipe, CScintillaLispCtrl>
 {
 public:
 	DECLARE_WND_SUPERCLASS(NULL, "Scintilla")
@@ -67,7 +67,7 @@ public:
 	}
 
 	void Init() {
-		CScintillaCtrl::Init();
+		CScintillaLispCtrl::Init();
 		SetMarginWidthN(0, 0);
 		SetMarginWidthN(1, 0);
 		SetWrapMode(SC_WRAP_WORD);
@@ -108,7 +108,7 @@ public:
 			return TRUE;
 		}
 		Sci_Position currentpos = GetSelectionEnd();
-		int len = GetLength();
+		Sci_Position len = GetLength();
 		if (m_CurPos == -1 || m_CurPos > currentpos) {
 			m_CurPos = currentpos;
 			if (m_CurPos != len) {
@@ -164,7 +164,7 @@ public:
 			text.TrimRight("\r\n");
 			if (!text.IsEmpty()) m_History.Add(text);
 			m_CurCommand = m_History.GetSize();
-			int len = GetWindowTextLength();
+			Sci_Position len = GetWindowTextLength();
 			GotoPos(len);
 			text += "\n";
 			Print(text);
@@ -195,7 +195,7 @@ public:
 		return 1;
 	}
 
-	int GetWindowTextLength() {
+	Sci_Position GetWindowTextLength() {
 		return GetLength();
 	}
 
@@ -308,7 +308,7 @@ public:
 			{
 				DWORD dwOsErr = ::GetLastError();
 				TCHAR szMsg[40];
-				::_stprintf(szMsg, "Redirect console error: %x\r\n", dwOsErr);
+				::sprintf_s(szMsg, "Redirect console error: %x\r\n", dwOsErr);
 				WriteStdError(szMsg);
 				DestroyHandle(hStdoutReadTmp);
 				DestroyHandle(hStdoutWrite);
@@ -343,7 +343,7 @@ public:
 			HANDLE hProc = ::OpenProcess(PROCESS_ALL_ACCESS, FALSE, myprocID);
 			if (hProc)
 			{
-				::TerminateProcess(hProc, -2);
+				::TerminateProcess(hProc, 2);
 				::CloseHandle(hProc);
 			}
 		}
@@ -364,7 +364,7 @@ public:
 				::SetEvent(m_hEvtStop);
 				if (::WaitForSingleObject(m_hOutputThread, 5000) == WAIT_TIMEOUT)
 				{
-					::TerminateThread(m_hOutputThread, -2);
+					::TerminateThread(m_hOutputThread, 2);
 				}
 			}
 			DestroyHandle(m_hOutputThread);
@@ -455,7 +455,7 @@ public:
 			if (!dwAvail) {					// not data available
 				return 1;
 			}
-			char *szOutput = new char[dwAvail + 1];
+			TCHAR *szOutput = new TCHAR[dwAvail + 1];
 			DWORD dwRead = 0;
 			if (!::ReadFile(m_hStdoutRead, szOutput, dwAvail,
 				&dwRead, NULL) || !dwRead) {	// error, the child might ended
@@ -494,7 +494,7 @@ public:
 			m_CarryNewLine = false;
 			text.Delete(0);
 		}
-		CScintillaCtrl::AppendText(text.GetLength(), text);
+		CScintillaLispCtrl::AppendText(text.GetLength(), text);
 		GotoPos(GetWindowTextLength());
 	}
 

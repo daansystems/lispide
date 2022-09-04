@@ -14,6 +14,7 @@
 #ifndef _APPSETTINGS_H
 #define _APPSETTINGS_H
 
+
 class CAppSettings
 {
 public:

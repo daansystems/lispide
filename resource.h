@@ -2,7 +2,9 @@
 // Microsoft Visual C++ generated include file.
 // Used by LispIDE.rc
 //
-#define IDD_ABOUTBOX                    100
+#define IDS_PROJNAME                    100
+#define IDR_LISPIDE						101
+#define IDD_ABOUTBOX                    102
 #define IDR_MAINFRAME                   128
 #define IDB_LISP                        201
 #define IDB_DOCSTATE                    202
@@ -43,19 +45,20 @@
 #define ID_KEYWORDSET_ISLISP            32833
 #define ID_KEYWORDSET_PICOLISP          32834
 #define ID_KEYWORDSET_CLOJURE           32835
-#define ID_EDIT_PRETTYPRINT             32836
-#define ID_SETTINGS_TABSIZE             32837
-#define ID_TABSIZE_4                    32838
-#define ID_TABSIZE_8                    32839
-#define ID_SETTINGS_TABSIZE_4           32840
-#define ID_SETTINGS_TABSIZE_8           32841
+#define ID_KEYWORDSET_JANET				32836
+#define ID_EDIT_PRETTYPRINT             32840
+#define ID_SETTINGS_TABSIZE             32841
+#define ID_TABSIZE_4                    32842
+#define ID_TABSIZE_8                    32843
+#define ID_SETTINGS_TABSIZE_4           32844
+#define ID_SETTINGS_TABSIZE_8           32845
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        205
-#define _APS_NEXT_COMMAND_VALUE         32841
+#define _APS_NEXT_COMMAND_VALUE         32846
 #define _APS_NEXT_CONTROL_VALUE         1003
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

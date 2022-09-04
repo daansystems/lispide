@@ -8,14 +8,14 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
-namespace Scintilla {
+namespace Scintilla::Internal {
 
 class SelectionPosition {
 	Sci::Position position;
 	Sci::Position virtualSpace;
 public:
-	explicit SelectionPosition(Sci::Position position_=INVALID_POSITION, Sci::Position virtualSpace_=0) noexcept : position(position_), virtualSpace(virtualSpace_) {
-		PLATFORM_ASSERT(virtualSpace < 800000);
+	explicit SelectionPosition(Sci::Position position_= Sci::invalidPosition, Sci::Position virtualSpace_=0) noexcept : position(position_), virtualSpace(virtualSpace_) {
+		PLATFORM_ASSERT(virtualSpace < 800000000);
 		if (virtualSpace < 0)
 			virtualSpace = 0;
 	}
@@ -42,7 +42,7 @@ public:
 		return virtualSpace;
 	}
 	void SetVirtualSpace(Sci::Position virtualSpace_) noexcept {
-		PLATFORM_ASSERT(virtualSpace_ < 800000);
+		PLATFORM_ASSERT(virtualSpace_ < 800000000);
 		if (virtualSpace_ >= 0)
 			virtualSpace = virtualSpace_;
 	}
@@ -133,6 +133,9 @@ struct SelectionRange {
 	void MinimizeVirtualSpace() noexcept;
 };
 
+// Deliberately an enum rather than an enum class to allow treating as bool
+enum InSelection { inNone, inMain, inAdditional };
+
 class Selection {
 	std::vector<SelectionRange> ranges;
 	std::vector<SelectionRange> rangesSaved;
@@ -141,16 +144,15 @@ class Selection {
 	bool moveExtends;
 	bool tentativeMain;
 public:
-	enum selTypes { noSel, selStream, selRectangle, selLines, selThin };
-	selTypes selType;
+	enum class SelTypes { none, stream, rectangle, lines, thin };
+	SelTypes selType;
 
 	Selection();
-	~Selection();
 	bool IsRectangular() const noexcept;
-	Sci::Position MainCaret() const;
-	Sci::Position MainAnchor() const;
+	Sci::Position MainCaret() const noexcept;
+	Sci::Position MainAnchor() const noexcept;
 	SelectionRange &Rectangular() noexcept;
-	SelectionSegment Limits() const;
+	SelectionSegment Limits() const noexcept;
 	// This is for when you want to move the caret in response to a
 	// user direction command - for rectangular selections, use the range
 	// that covers all selected text otherwise return the main selection.
@@ -158,19 +160,19 @@ public:
 	size_t Count() const noexcept;
 	size_t Main() const noexcept;
 	void SetMain(size_t r) noexcept;
-	SelectionRange &Range(size_t r);
-	const SelectionRange &Range(size_t r) const;
-	SelectionRange &RangeMain();
-	const SelectionRange &RangeMain() const;
-	SelectionPosition Start() const;
+	SelectionRange &Range(size_t r) noexcept;
+	const SelectionRange &Range(size_t r) const noexcept;
+	SelectionRange &RangeMain() noexcept;
+	const SelectionRange &RangeMain() const noexcept;
+	SelectionPosition Start() const noexcept;
 	bool MoveExtends() const noexcept;
 	void SetMoveExtends(bool moveExtends_) noexcept;
 	bool Empty() const noexcept;
 	SelectionPosition Last() const noexcept;
 	Sci::Position Length() const noexcept;
 	void MovePositions(bool insertion, Sci::Position startChange, Sci::Position length) noexcept;
-	void TrimSelection(SelectionRange range);
-	void TrimOtherSelections(size_t r, SelectionRange range);
+	void TrimSelection(SelectionRange range) noexcept;
+	void TrimOtherSelections(size_t r, SelectionRange range) noexcept;
 	void SetSelection(SelectionRange range);
 	void AddSelection(SelectionRange range);
 	void AddSelectionWithoutTrim(SelectionRange range);
@@ -178,8 +180,9 @@ public:
 	void DropAdditionalRanges();
 	void TentativeSelection(SelectionRange range);
 	void CommitTentative() noexcept;
-	int CharacterInSelection(Sci::Position posCharacter) const;
-	int InSelectionForEOL(Sci::Position pos) const;
+	InSelection RangeType(size_t r) const noexcept;
+	InSelection CharacterInSelection(Sci::Position posCharacter) const noexcept;
+	InSelection InSelectionForEOL(Sci::Position pos) const noexcept;
 	Sci::Position VirtualSpaceFor(Sci::Position pos) const noexcept;
 	void Clear();
 	void RemoveDuplicates();

@@ -1,0 +1,18 @@
+// LispIDE.idl : IDL source for LispIDE
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (LispIDE.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(c2f40730-2c3f-47a9-b2da-e81b6965c921),
+	version(1.0),
+]
+library LispIDELib
+{
+	importlib("stdole2.tlb");
+};
+

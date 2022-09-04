@@ -11,17 +11,16 @@
 #include <stdexcept>
 #include <string_view>
 #include <vector>
+#include <optional>
 #include <algorithm>
 #include <memory>
 
-#include "Platform.h"
-
-#include "Scintilla.h"
+#include "Debugging.h"
 
 #include "Position.h"
 #include "Selection.h"
 
-using namespace Scintilla;
+using namespace Scintilla::Internal;
 
 void SelectionPosition::MoveForInsertDelete(bool insertion, Sci::Position startChange, Sci::Position length, bool moveForEqual) noexcept {
 	if (insertion) {
@@ -191,22 +190,19 @@ void SelectionRange::MinimizeVirtualSpace() noexcept {
 	}
 }
 
-Selection::Selection() : mainRange(0), moveExtends(false), tentativeMain(false), selType(selStream) {
+Selection::Selection() : mainRange(0), moveExtends(false), tentativeMain(false), selType(SelTypes::stream) {
 	AddSelection(SelectionRange(SelectionPosition(0)));
 }
 
-Selection::~Selection() {
-}
-
 bool Selection::IsRectangular() const noexcept {
-	return (selType == selRectangle) || (selType == selThin);
+	return (selType == SelTypes::rectangle) || (selType == SelTypes::thin);
 }
 
-Sci::Position Selection::MainCaret() const {
+Sci::Position Selection::MainCaret() const noexcept {
 	return ranges[mainRange].caret.Position();
 }
 
-Sci::Position Selection::MainAnchor() const {
+Sci::Position Selection::MainAnchor() const noexcept {
 	return ranges[mainRange].anchor.Position();
 }
 
@@ -214,7 +210,7 @@ SelectionRange &Selection::Rectangular() noexcept {
 	return rangeRectangular;
 }
 
-SelectionSegment Selection::Limits() const {
+SelectionSegment Selection::Limits() const noexcept {
 	if (ranges.empty()) {
 		return SelectionSegment();
 	} else {
@@ -248,23 +244,23 @@ void Selection::SetMain(size_t r) noexcept {
 	mainRange = r;
 }
 
-SelectionRange &Selection::Range(size_t r) {
+SelectionRange &Selection::Range(size_t r) noexcept {
 	return ranges[r];
 }
 
-const SelectionRange &Selection::Range(size_t r) const {
+const SelectionRange &Selection::Range(size_t r) const noexcept {
 	return ranges[r];
 }
 
-SelectionRange &Selection::RangeMain() {
+SelectionRange &Selection::RangeMain() noexcept {
 	return ranges[mainRange];
 }
 
-const SelectionRange &Selection::RangeMain() const {
+const SelectionRange &Selection::RangeMain() const noexcept {
 	return ranges[mainRange];
 }
 
-SelectionPosition Selection::Start() const {
+SelectionPosition Selection::Start() const noexcept {
 	if (IsRectangular()) {
 		return rangeRectangular.Start();
 	} else {
@@ -311,12 +307,12 @@ void Selection::MovePositions(bool insertion, Sci::Position startChange, Sci::Po
 	for (SelectionRange &range : ranges) {
 		range.MoveForInsertDelete(insertion, startChange, length);
 	}
-	if (selType == selRectangle) {
+	if (selType == SelTypes::rectangle) {
 		rangeRectangular.MoveForInsertDelete(insertion, startChange, length);
 	}
 }
 
-void Selection::TrimSelection(SelectionRange range) {
+void Selection::TrimSelection(SelectionRange range) noexcept {
 	for (size_t i=0; i<ranges.size();) {
 		if ((i != mainRange) && (ranges[i].Trim(range))) {
 			// Trimmed to empty so remove
@@ -332,7 +328,7 @@ void Selection::TrimSelection(SelectionRange range) {
 	}
 }
 
-void Selection::TrimOtherSelections(size_t r, SelectionRange range) {
+void Selection::TrimOtherSelections(size_t r, SelectionRange range) noexcept {
 	for (size_t i = 0; i<ranges.size(); ++i) {
 		if (i != r) {
 			ranges[i].Trim(range);
@@ -391,20 +387,24 @@ void Selection::CommitTentative() noexcept {
 	tentativeMain = false;
 }
 
-int Selection::CharacterInSelection(Sci::Position posCharacter) const {
-	for (size_t i=0; i<ranges.size(); i++) {
-		if (ranges[i].ContainsCharacter(posCharacter))
-			return i == mainRange ? 1 : 2;
-	}
-	return 0;
+InSelection Selection::RangeType(size_t r) const noexcept {
+	return r == Main() ? InSelection::inMain : InSelection::inAdditional;
 }
 
-int Selection::InSelectionForEOL(Sci::Position pos) const {
+InSelection Selection::CharacterInSelection(Sci::Position posCharacter) const noexcept {
+	for (size_t i=0; i<ranges.size(); i++) {
+		if (ranges[i].ContainsCharacter(posCharacter))
+			return RangeType(i);
+	}
+	return InSelection::inNone;
+}
+
+InSelection Selection::InSelectionForEOL(Sci::Position pos) const noexcept {
 	for (size_t i=0; i<ranges.size(); i++) {
 		if (!ranges[i].Empty() && (pos > ranges[i].Start().Position()) && (pos <= ranges[i].End().Position()))
-			return i == mainRange ? 1 : 2;
+			return RangeType(i);
 	}
-	return 0;
+	return InSelection::inNone;
 }
 
 Sci::Position Selection::VirtualSpaceFor(Sci::Position pos) const noexcept {
@@ -422,7 +422,7 @@ void Selection::Clear() {
 	ranges.clear();
 	ranges.emplace_back();
 	mainRange = ranges.size() - 1;
-	selType = selStream;
+	selType = SelTypes::stream;
 	moveExtends = false;
 	ranges[mainRange].Reset();
 	rangeRectangular.Reset();

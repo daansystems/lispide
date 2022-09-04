@@ -20,20 +20,20 @@ public:
 	{
 		CenterWindow(GetParent());
 		TCHAR text[255];
-		_stprintf(text, "LispIDE v%.2f %s", get_version(), sizeof(void*) == 4 ? "32bit" : "64bit");
+		sprintf_s(text, "LispIDE v%.2f %s", get_version(), sizeof(void*) == 4 ? "32bit" : "64bit");
 		SetDlgItemText(IDC_VERSION, text);
 		return TRUE;
 	}
 
 	double get_version() {
-		int year;
-		int day;
-		int hour;
+		UINT year;
+		UINT day;
+		UINT hour;
 		char month[4];
-		int monthnum;
-		sscanf(__DATE__, "%s %d %d", month, &day, &year);
-		sscanf(__TIME__, "%d", &hour);
-		char months[12][4] = { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" };
+		UINT monthnum;
+		sscanf_s(__DATE__, "%s %d %d", month, 4,  &day, &year);
+		sscanf_s(__TIME__, "%d", &hour);
+		char months[12][4] = { "Jan","Feb","Mar","Apr","May","Jun","Ju","Aug","Sep","Oct","Nov","Dec" };
 		for (monthnum = 0; monthnum < 12; monthnum++) {
 			if (strcmp(months[monthnum], month) == 0) break;
 		}

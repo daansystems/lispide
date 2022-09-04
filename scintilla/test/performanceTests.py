@@ -1,4 +1,6 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Requires Python 2.7 or later
 
 from __future__ import with_statement
 from __future__ import unicode_literals
@@ -11,10 +13,7 @@ try:
 except AttributeError:
 	timer = time.time
 
-if sys.platform == "win32":
-	import XiteWin as Xite
-else:
-	import XiteQt as Xite
+import XiteWin as Xite
 
 class TestPerformance(unittest.TestCase):
 

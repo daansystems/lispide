@@ -8,10 +8,15 @@
 #ifndef PLATWIN_H
 #define PLATWIN_H
 
-namespace Scintilla {
+namespace Scintilla::Internal {
 
-extern void Platform_Initialise(void *hInstance);
-extern void Platform_Finalise(bool fromDllMain);
+#ifndef USER_DEFAULT_SCREEN_DPI
+#define USER_DEFAULT_SCREEN_DPI		96
+#endif
+
+extern void Platform_Initialise(void *hInstance) noexcept;
+
+extern void Platform_Finalise(bool fromDllMain) noexcept;
 
 constexpr RECT RectFromPRectangle(PRectangle prc) noexcept {
 	RECT rc = { static_cast<LONG>(prc.left), static_cast<LONG>(prc.top),
@@ -35,10 +40,28 @@ inline HWND HwndFromWindow(const Window &w) noexcept {
 	return HwndFromWindowID(w.GetID());
 }
 
+void *PointerFromWindow(HWND hWnd) noexcept;
+void SetWindowPointer(HWND hWnd, void *ptr) noexcept;
+
+UINT DpiForWindow(WindowID wid) noexcept;
+
+int SystemMetricsForDpi(int nIndex, UINT dpi) noexcept;
+
+HCURSOR LoadReverseArrowCursor(UINT dpi) noexcept;
+
 #if defined(USE_D2D)
 extern bool LoadD2D();
 extern ID2D1Factory *pD2DFactory;
 extern IDWriteFactory *pIDWriteFactory;
+
+struct RenderingParams {
+	std::unique_ptr<IDWriteRenderingParams, UnknownReleaser> defaultRenderingParams;
+	std::unique_ptr<IDWriteRenderingParams, UnknownReleaser> customRenderingParams;
+};
+
+struct ISetRenderingParams {
+	virtual void SetRenderingParams(std::shared_ptr<RenderingParams> renderingParams_) = 0;
+};
 #endif
 
 }

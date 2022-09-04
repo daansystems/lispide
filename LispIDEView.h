@@ -5,11 +5,12 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
 class CLispIDEView :
-	public CWindowImpl<CLispIDEView, CScintillaCtrl>
+	public CWindowImpl<CLispIDEView, CScintillaLispCtrl>
 {
 public:
 	DECLARE_WND_SUPERCLASS(NULL, "Scintilla")
@@ -35,7 +36,7 @@ public:
 	}
 
 	void Init() {
-		CScintillaCtrl::Init();
+		CScintillaLispCtrl::Init();
 		ClearCmdKey(SCK_RETURN + (SCMOD_NORM << 16));
 		ClearCmdKey(SCK_RETURN + (SCMOD_SHIFT << 16));
 	}
@@ -92,7 +93,7 @@ public:
 	// @mfunc Try to load a new file
 	// @rvalue BOOL | FALSE on error - TRUE on success
 	//
-	BOOL LoadFile(LPCSTR szPath) //@parm filename of to load
+	BOOL LoadFile(LPCTSTR szPath) //@parm filename of to load
 	{
 		// if pathname is empty do nothing
 		if (szPath == NULL || *szPath == '\0')
@@ -157,7 +158,7 @@ public:
 		return bReturn;
 	}
 	
-	BOOL SaveFile(LPCSTR szPath) //@parm filename to save to
+	BOOL SaveFile(LPCTSTR szPath) //@parm filename to save to
 	{
 		std::ofstream file;
 		file.open(szPath, ios_base::out | ios_base::binary);
@@ -166,8 +167,8 @@ public:
 			MessageBox("Save failed", "LispIDE", MB_OK | MB_ICONERROR);
 			return FALSE;
 		}
-		int buflen = GetLength() + 1; //last NULL
-		CString text = this->GetText(buflen);
+		Sci_Position buflen = GetLength() + 1; //last NULL
+		CString text = this->GetText((int)buflen);
 		file.write(text, buflen - 1);
 		file.close();
 		SetSavePoint();
