@@ -6,8 +6,8 @@
 
 
 #define CWnd ATL::CWindow
-#define DECLARE_DYNAMIC(x)
-#define IMPLEMENT_DYNAMIC(x, y)
+#define DECLARE_DYNAMIC(x) // Do nothing
+#define IMPLEMENT_DYNAMIC(x, y) // Do nothing
 #define ASSERT ATLASSERT
 #define CreateEx(dwExStyle, lpszClassName, lpszWindowName, dwStyle, rect, pParentWnd, nID, lpParam) \
 	Create(lpszClassName, HWND(pParentWnd), _U_RECT((RECT&)rect), lpszWindowName, dwStyle, dwExStyle, nID, lpParam)

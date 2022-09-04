@@ -20,7 +20,6 @@ OutputBaseFilename=LispIDE_Setup
 Compression=lzma
 SolidCompression=yes
 WizardImageFile=installer.bmp
-SignTool=DaanSystems $f
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

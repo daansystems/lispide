@@ -24,6 +24,7 @@ LispIDE seems to work with
 - [Bigloo Scheme](https://www-sop.inria.fr/mimosa/fp/Bigloo/)
 - [Gambit Scheme](https://gambitscheme.org/)
 - [SCM Scheme](http://people.csail.mit.edu/jaffer/SCM)
+- [Chicken Scheme](https://wiki.call-cc.org/)
 - [Arc](http://arclanguage.org/)
 - [Clozure Common Lisp](https://www.clozure.com/ccl)
 - [Armed Bear Common Lisp](https://armedbear.common-lisp.dev/)
