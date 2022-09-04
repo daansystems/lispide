@@ -44,11 +44,11 @@ LispIDE is freeware.
 LispIDE was written in C++ (!) and uses
 the following stuff:
 
-- WTL
-- Scintilla and Lexilla
-- CScintillaCtrl by PJ Naughter
-- CAppSettings Peter Kenyon
-- Lisp Logo by Conrad Barski
+- [Windows Template Library](https://wtl.sourceforge.io/)
+- [Scintilla](https://www.scintilla.org/) and [Lexilla](https://www.scintilla.org/Lexilla.html)
+- [CScintillaCtrl](http://www.naughter.com/scintilla.html)
+- [CAppSettings](https://www.codeproject.com/Articles/630/User-settings-class-for-ATL-WTL-projects)
+- [Lisp Logo](http://www.lisperati.com/logo.html)
 - Common Lisp HyperSpec by The Harlequin Group Limited.
 - Common Lisp the Language, 2nd Edition by Guy L. Steele, Thinking Machines, Inc.
 
