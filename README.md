@@ -13,25 +13,26 @@ several Lisp implementations for Windows.
 
 Download Latest Version (64 bit)
 -----------------------
-https://github.com/daansystems/lispide/raw/master/installer/LispIDE_Setup.exe
+[LispIDE_Setup.exe v20220904.10](https://github.com/daansystems/lispide/raw/master/installer/LispIDE_Setup.exe)
 
-LispIDE seems to work with:
-
-- CLISP
-- SBCL
-- Corman Lisp
-- GCL
-- Bigloo
-- Gambit
-- SCM
-- Arc
-- Clozure Common Lisp
-- newLISP
-- OpenLisp
-- PicoLisp
-- Clojure
-- ISLisp
-- Janet
+LispIDE seems to work with
+--------------------------
+- [CLISP](https://clisp.sourceforge.io/)
+- [Steel Bank Common Lisp](https://www.sbcl.org/)
+- [Corman Lisp](https://github.com/sharplispers/cormanlisp)
+- [GCL - GNU Common Lisp](https://www.gnu.org/software/gcl/)
+- [Bigloo Scheme](https://www-sop.inria.fr/mimosa/fp/Bigloo/)
+- [Gambit Scheme](https://gambitscheme.org/)
+- [SCM Scheme](http://people.csail.mit.edu/jaffer/SCM)
+- [Arc](http://arclanguage.org/)
+- [Clozure Common Lisp](https://www.clozure.com/ccl)
+- [Armed Bear Common Lisp](https://armedbear.common-lisp.dev/)
+- [newLISP](http://www.newlisp.org/)
+- [OpenLisp](http://www.openlisp.org/)
+- [PicoLisp](https://picolisp.com/wiki/?home)
+- [Clojure](https://clojure.org/)
+- [ISLisp](http://www.islisp.org/)
+- [Janet Language](https://janet-lang.org/)
 
 If you want commandline parameters for your Lisp
 you need to create a .bat or .cmd file and
