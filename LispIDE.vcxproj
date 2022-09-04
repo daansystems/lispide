@@ -207,6 +207,12 @@
       <Project>{19cca8b8-46b9-4609-b7ce-198da19f07bd}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\docstate.bmp" />
+    <Image Include="res\lisp.bmp" />
+    <Image Include="res\LispIDE.ico" />
+    <Image Include="res\Toolbar.bmp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

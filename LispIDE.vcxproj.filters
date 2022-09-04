@@ -84,4 +84,18 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\Toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\lisp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\docstate.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\LispIDE.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
