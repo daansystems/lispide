@@ -13,7 +13,7 @@ several Lisp implementations for Windows.
 
 Download Latest Version (64 bit)
 -----------------------
-[LispIDE_Setup.exe v20220904.10](https://github.com/daansystems/lispide/raw/master/installer/LispIDE_Setup.exe)
+[LispIDE_Setup.exe v20220906.08](https://github.com/daansystems/lispide/raw/master/installer/LispIDE_Setup.exe)
 
 LispIDE seems to work with
 --------------------------
