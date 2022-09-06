@@ -58,6 +58,11 @@ the following stuff:
 
 Changes:
 
+- v20220906.08
+  + Add tabsize 2
+  + Fix closing a document with Ctrl+F4
+  + Fix font for brace highlighting
+
 - v20220904.10
   + Updated to Scintilla v530 and Lexilla v5.1.9
   + Updated to WTL10
