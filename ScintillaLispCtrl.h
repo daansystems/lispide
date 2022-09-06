@@ -48,6 +48,8 @@ static SScintillaColors g_rgbSyntaxLisp[] =
 { SCE_LISP_OPERATOR, red },
 { SCE_LISP_SPECIAL, red },
 { SCE_LISP_MULTI_COMMENT, cyan },
+{ STYLE_BRACELIGHT, black },
+{ STYLE_BRACEBAD, black },
 { -1,  0 }
 };
 //////////////////// Classes //////////////////////////////////////////////////
@@ -84,38 +86,22 @@ public:
 		if (GetSelectionEnd() != GetSelectionStart())
 			m_CanLisp = TRUE;
 
-
-		//		SetMsgHandled(false);
 		return 0;
 	}
 	void Init() {
-		// SetupDirectAccess();
-
 		SetCallDirect(FALSE);
-
 		ILexer5* pLexer = CreateLexer("lisp");
 		SetILexer(pLexer);
-
 		StyleClearAll();
-
-
-
-		// SCI_SETILEXER(pLexer);
-		// SetLexer(SCLEX_LISP);
 		SetMarginWidthN(0, 40);
 		SetMarginWidthN(1, 0);
-
 		//		ClearCmdKey(SCK_RETURN + (SCMOD_NORM << 16));
 		//		ClearCmdKey(SCK_RETURN + (SCMOD_SHIFT << 16));
-
 		int tabSize = g_Settings.GetUserProfileDword("Settings", "TabSize");
 		SetTabWidth(tabSize);
 
 		if (g_Settings.GetUserProfileDword("Settings", "TabUsesSpaces"))
 			SetUseTabs(FALSE);
-
-		// Set syntax colors
-
 
 		DWORD fontsize = g_Settings.GetUserProfileDword("Settings", "FontSize");
 		CString fontname = g_Settings.GetUserProfileString("Settings", "FontName", NULL);
